@@ -1,6 +1,6 @@
 import { ActionFunction } from "@remix-run/node"
 import { useActionData } from "@remix-run/react";
-import { login } from "~/utils/session.server"
+import { login, createUserSession } from "~/utils/session.server"
 
 type ActionData = {
     fields?: {
@@ -13,11 +13,14 @@ export const action: ActionFunction = async ({ request, }) => {
     const form = await request.formData();
     const username = form.get("username");
     const password = form.get("password");
+    const redirectTo = form.get("redirectTo") || "/posts";
+
 
     if (
 
         typeof username !== "string" ||
-        typeof password !== "string"
+        typeof password !== "string" ||
+        typeof redirectTo !== "string"
 
     ) {
         return false;
@@ -28,7 +31,7 @@ export const action: ActionFunction = async ({ request, }) => {
     if (!user) {
         return { ok: false }
     }
-    return true;
+    return createUserSession(user.id, redirectTo);
 }
 
 export default function Login() {
